@@ -16,28 +16,30 @@ export class MainComponent implements OnInit, OnDestroy {
   escuchando = false;
   nivelVolumen = 0;
   score = 0;
+  mostrarGuitarra = false;
 
   private picoVolumen = 0;
   private audioContext!: AudioContext;
   private analyser!: AnalyserNode;
   private animationId!: number;
 
-  private audioIntro = new Audio('/ironmaiden.mp3'); // ✅ Cargar audio
+  private audioIntro = new Audio('/ironmaiden.mp3');
 
   ngOnInit(): void {
     this.audioIntro.loop = true;
     this.audioIntro.volume = 0.2;
     this.audioIntro.play().catch(err => {
-      console.warn('Necesita interacción del usuario para reproducir audio');
+      console.warn('⚠️ Interacción necesaria para reproducir audio');
     });
   }
 
   async iniciarGrito() {
     this.escuchando = true;
+    this.mostrarGuitarra = true; // ✅ Mostrar guitarra solo después del clic
     this.score = 0;
     this.picoVolumen = 0;
 
-    // ✅ Detener la música de fondo
+    // 🎵 Detener música de fondo
     this.audioIntro.pause();
     this.audioIntro.currentTime = 0;
 
@@ -88,15 +90,14 @@ export class MainComponent implements OnInit, OnDestroy {
             this.audioContext.close();
             cancelAnimationFrame(this.animationId);
 
-            // 🔊 Reanudar la canción
-            this.audioIntro.currentTime = 0; // o déjalo como está si quieres que continúe
+            // 🔊 Reanudar música
+            this.audioIntro.currentTime = 0;
             this.audioIntro.play().catch(err => {
-              console.warn('No se pudo reanudar el audio:', err);
+              console.warn('🎵 Error al reanudar audio:', err);
             });
 
             return;
           }
-
         } else {
           silencioInicio = null;
         }
@@ -106,7 +107,7 @@ export class MainComponent implements OnInit, OnDestroy {
 
       actualizarBarra();
     } catch (error) {
-      console.error('Error al acceder al micrófono:', error);
+      console.error('🎙️ Error al acceder al micrófono:', error);
       this.escuchando = false;
     }
   }

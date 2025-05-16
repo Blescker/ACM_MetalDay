@@ -72,9 +72,11 @@
     </div>
 
     <!-- 🎸 Guitarra -->
-    <app-guitar
-      [volumen]="nivelVolumen"
-      class="w-full max-w-2xl h-[700px] relative left-32"
-    ></app-guitar>
+    <ng-container *ngIf="mostrarGuitarra">
+      <app-guitar
+        [volumen]="nivelVolumen"
+        class="w-full max-w-2xl h-[700px] relative left-32"
+      ></app-guitar>
+    </ng-container>
   </div>
 </div>
