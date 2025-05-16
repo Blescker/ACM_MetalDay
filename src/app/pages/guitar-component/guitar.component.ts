@@ -4,7 +4,9 @@ import {
   NgZone,
   ElementRef,
   ViewChild,
-  Input
+  Input,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -19,14 +21,28 @@ import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
   imports: [CommonModule],
   templateUrl: './guitar.component.html',
 })
-export class GuitarComponent implements AfterViewInit {
+export class GuitarComponent implements AfterViewInit, OnChanges {
   @ViewChild('guitarCanvasContainer', { static: true }) containerRef!: ElementRef;
-  @Input() volumen: number = 0; // 👈 volumen recibido desde el Main
+  @Input() volumen: number = 0;
+  @Input() activarCarga: boolean = false;
+
+  private yaSeCargo = false;
+  private model3D!: THREE.Object3D;
 
   constructor(private ngZone: NgZone) {}
 
   ngAfterViewInit(): void {
-    this.ngZone.runOutsideAngular(() => this.init3D());
+    if (this.activarCarga && !this.yaSeCargo) {
+      this.yaSeCargo = true;
+      this.ngZone.runOutsideAngular(() => this.init3D());
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activarCarga'] && this.activarCarga && !this.yaSeCargo) {
+      this.yaSeCargo = true;
+      this.ngZone.runOutsideAngular(() => this.init3D());
+    }
   }
 
   private init3D() {
@@ -34,7 +50,6 @@ export class GuitarComponent implements AfterViewInit {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // 🎥 Escena y cámara
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
@@ -46,7 +61,6 @@ export class GuitarComponent implements AfterViewInit {
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
-    // 💡 Iluminación
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
@@ -59,7 +73,6 @@ export class GuitarComponent implements AfterViewInit {
     pointLight.position.set(0, 2, 2);
     scene.add(pointLight);
 
-    // 🎮 Controles
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.target.set(0, 1.0, 0);
@@ -68,12 +81,11 @@ export class GuitarComponent implements AfterViewInit {
     controls.enablePan = false;
     controls.update();
 
-    // 📦 Cargar modelo
     const loader = new GLTFLoader();
     loader.load('modelos/guitarV.glb', (gltf: any) => {
-      console.log('Modelo cargado:', gltf);
-
       const model = gltf.scene;
+      this.model3D = model;
+
       model.scale.set(3, 3, 3);
       model.position.y = 1;
       model.rotation.y = Math.PI;
@@ -90,7 +102,7 @@ export class GuitarComponent implements AfterViewInit {
 
         model.rotation.y += delta * 0.5;
 
-        // 💥 Efecto de vibración al gritar fuerte
+        // 💥 Vibración brutal
         if (this.volumen > 80) {
           const vibracion = 3 + Math.sin(Date.now() * 0.1) * 0.1;
           model.scale.set(vibracion, vibracion, vibracion);

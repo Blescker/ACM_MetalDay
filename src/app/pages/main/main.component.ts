@@ -16,7 +16,8 @@ export class MainComponent implements OnInit, OnDestroy {
   escuchando = false;
   nivelVolumen = 0;
   score = 0;
-  mostrarGuitarra = false;
+  activarModeloGuitarra = false;
+  musicaReproduciendose = true; // ✅ Nueva variable para toggle
 
   private picoVolumen = 0;
   private audioContext!: AudioContext;
@@ -27,21 +28,40 @@ export class MainComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.audioIntro.loop = true;
-    this.audioIntro.volume = 0.2;
+    this.audioIntro.volume = 0.1;
+
     this.audioIntro.play().catch(err => {
-      console.warn('⚠️ Interacción necesaria para reproducir audio');
+      console.warn('🎧 Interacción requerida para reproducir audio');
+      this.musicaReproduciendose = false;
     });
+
+    const activarPorMouse = () => {
+      this.activarModeloGuitarra = true;
+      window.removeEventListener('mousemove', activarPorMouse);
+    };
+
+    window.addEventListener('mousemove', activarPorMouse, { once: true });
+  }
+
+  alternarMusica() {
+    if (this.musicaReproduciendose) {
+      this.audioIntro.pause();
+    } else {
+      this.audioIntro.play().catch(err => {
+        console.warn('🎵 No se pudo reproducir la música:', err);
+      });
+    }
+    this.musicaReproduciendose = !this.musicaReproduciendose;
   }
 
   async iniciarGrito() {
     this.escuchando = true;
-    this.mostrarGuitarra = true; // ✅ Mostrar guitarra solo después del clic
     this.score = 0;
     this.picoVolumen = 0;
 
-    // 🎵 Detener música de fondo
     this.audioIntro.pause();
     this.audioIntro.currentTime = 0;
+    this.musicaReproduciendose = false;
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -90,14 +110,17 @@ export class MainComponent implements OnInit, OnDestroy {
             this.audioContext.close();
             cancelAnimationFrame(this.animationId);
 
-            // 🔊 Reanudar música
             this.audioIntro.currentTime = 0;
-            this.audioIntro.play().catch(err => {
+            this.audioIntro.play().then(() => {
+              this.musicaReproduciendose = true;
+            }).catch(err => {
               console.warn('🎵 Error al reanudar audio:', err);
+              this.musicaReproduciendose = false;
             });
 
             return;
           }
+
         } else {
           silencioInicio = null;
         }

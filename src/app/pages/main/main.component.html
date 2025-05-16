@@ -17,6 +17,16 @@
   >
     ¡GRITA YA!
   </button>
+  <button
+    (click)="alternarMusica()"
+    class="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded"
+    [ngClass]="{
+      'text-green-400': musicaReproduciendose,
+      'text-red-400': !musicaReproduciendose
+    }"
+  >
+    {{ musicaReproduciendose ? "⏸ Parar música" : "▶️ Reanudar música" }}
+  </button>
 
   <!-- 🎯 Score en vivo -->
   <div *ngIf="score > 0" class="mt-4 text-yellow-400 text-2xl font-extrabold">
@@ -72,11 +82,10 @@
     </div>
 
     <!-- 🎸 Guitarra -->
-    <ng-container *ngIf="mostrarGuitarra">
-      <app-guitar
-        [volumen]="nivelVolumen"
-        class="w-full max-w-2xl h-[700px] relative left-32"
-      ></app-guitar>
-    </ng-container>
+    <app-guitar
+      [volumen]="nivelVolumen"
+      [activarCarga]="activarModeloGuitarra"
+      class="w-full max-w-2xl h-[700px] relative left-32"
+    ></app-guitar>
   </div>
 </div>
