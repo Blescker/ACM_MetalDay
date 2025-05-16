@@ -1,0 +1,80 @@
+<div
+  class="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4"
+>
+  <h1
+    class="text-5xl font-extrabold mb-4 text-red-600 drop-shadow-lg animate-pulse"
+  >
+    🔥 Día Del Metal 🔥
+  </h1>
+
+  <p class="mb-6 text-lg text-gray-300">
+    Presiona el botón y suelta tu mejor scream
+  </p>
+
+  <button
+    (click)="iniciarGrito()"
+    class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-200"
+  >
+    ¡GRITA YA!
+  </button>
+
+  <!-- 🎯 Score en vivo -->
+  <div *ngIf="score > 0" class="mt-4 text-yellow-400 text-2xl font-extrabold">
+    🎯 Puntaje: {{ score }}
+  </div>
+
+  <!-- 🔥 Mensaje según el rango del score -->
+  <div
+    *ngIf="score > 0"
+    class="mt-2 text-3xl font-extrabold animate-pulse"
+    [ngClass]="{
+      'text-red-600': score >= 900,
+      'text-orange-500': score >= 700 && score < 900,
+      'text-yellow-400': score >= 500 && score < 700,
+      'text-green-400': score >= 300 && score < 500,
+      'text-gray-400': score < 300
+    }"
+  >
+    {{ gritoMensaje }}
+  </div>
+
+  <!-- 🎧 Estado de escucha -->
+  <div
+    *ngIf="escuchando"
+    class="mt-6 text-green-400 font-semibold animate-pulse"
+  >
+    🎤 Escuchando tu grito...
+  </div>
+
+  <!-- 📦 Contenedor de barra y guitarra -->
+  <div
+    class="flex flex-row items-center justify-center gap-8 mt-10 w-full max-w-6xl relative"
+  >
+    <!-- 📊 Barra de volumen -->
+    <div
+      class="w-10 h-64 relative bg-gray-800 border-4 border-red-600 rounded overflow-hidden left-32"
+      [ngClass]="{
+        'ring-4 ring-red-600': nivelVolumen >= 90,
+        'shadow-lg shadow-red-500': nivelVolumen >= 95
+      }"
+    >
+      <div
+        class="absolute bottom-0 w-full transition-all duration-100 ease-out"
+        [style.height.%]="nivelVolumen"
+        [ngClass]="{
+          'bg-green-500': nivelVolumen < 40,
+          'bg-yellow-400': nivelVolumen >= 40 && nivelVolumen < 70,
+          'bg-orange-500': nivelVolumen >= 70 && nivelVolumen < 90,
+          'bg-red-600': nivelVolumen >= 90,
+          'animate-pulse': nivelVolumen >= 85
+        }"
+      ></div>
+    </div>
+
+    <!-- 🎸 Guitarra -->
+    <app-guitar
+      [volumen]="nivelVolumen"
+      class="w-full max-w-2xl h-[700px] relative left-32"
+    ></app-guitar>
+  </div>
+</div>
